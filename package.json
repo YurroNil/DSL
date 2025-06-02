@@ -1,0 +1,31 @@
+{
+    "name": "electron-application",
+    "version": "1.0.0",
+    "description": "Electron Application",
+    "main": "src/main.js",
+    "scripts": {
+        "start": "electron .",
+        "pack": "electron-builder --dir",
+        "build": "electron-builder"
+    },
+    "devDependencies": {
+        "electron": "^29.4.6",
+        "electron-builder": "^24.13.3"
+    },
+    "build": {
+        "appId": "deepseek-launcher",
+        "productName": "Deepseek Launcher",
+        "copyright": "Copyright © 2024 KawaiiYora",
+        "directories": {
+            "output": "build"
+        },
+        "win": {
+            "target": "nsis",
+            "icon": "resources/images/icon.ico"
+        },
+        "nsis": {
+            "oneClick": false,
+            "allowToChangeInstallationDirectory": true
+        }
+    }
+}
