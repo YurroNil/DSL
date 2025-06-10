@@ -1,0 +1,75 @@
+/* css/aspect_ratio.css */
+
+/* 响应式布局处理 */
+@media (max-aspect-ratio: 1/1) {
+    /* 竖屏模式适配 */
+    .container {
+      flex-direction: column;
+      gap: 10px;
+    }
+   
+    .history-area {
+      width: 100%;
+      max-height: 200px;
+    }
+   
+    .input-area {
+      flex: 1;
+      margin-top: 10px;
+    }
+}
+
+@media (min-aspect-ratio: 16/9) {
+    /* 超宽屏适配 */
+    .container {
+        max-width: 1920px;
+        gap: 30px;
+    }
+
+    .history-area {
+        width: 350px;
+    }
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    .container {
+        min-width: auto;
+        flex-direction: column;
+    }
+
+    .history-area {
+        width: 100%;
+        max-height: 150px;
+    }
+
+    textarea {
+        height: 200px;
+    }
+}
+
+/* 最小尺寸警告 */
+@media (max-width: 479px), (max-height: 271px) {
+    body::after {
+        content: "当前分辨率低于推荐尺寸(480x272), 部分功能可能受限";
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--error);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        z-index: 9999;
+        animation: fadeIn 0.3s;
+    }
+}
+
+@keyframes fadeIn {
+from { opacity: 0; }
+to { opacity: 1; }
+}

@@ -1,7 +1,21 @@
+// src/preload.js
+
 const { contextBridge, ipcRenderer } = require('electron');
 
-// 安全地暴露API给渲染进程
 contextBridge.exposeInMainWorld('electronAPI', {
-  // 暴露一个函数给渲染进程
-  showMessage: (message) => ipcRenderer.send('show-message', message)
+  startStreamingRequest: (input) => ipcRenderer.invoke('start-streaming-request', input),
+  cancelStreamingRequest: () => ipcRenderer.invoke('cancel-streaming-request'),
+  getConversationHistory: () => ipcRenderer.invoke('get-conversation-history'),
+  clearConversationHistory: () => ipcRenderer.invoke('clear-conversation-history'),
+  
+  // 流式响应事件监听
+  onStreamingResponse: (callback) => {
+    ipcRenderer.on('streaming-response', (event, chunk) => callback(chunk));
+  },
+  onStreamingComplete: (callback) => {
+    ipcRenderer.on('streaming-complete', () => callback());
+  },
+  onStreamingError: (callback) => {
+    ipcRenderer.on('streaming-error', (event, error) => callback(error));
+  }
 });

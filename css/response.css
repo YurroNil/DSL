@@ -1,0 +1,15 @@
+/* css/response.css */
+
+.response-area {
+    background: var(--card);
+    padding: 20px;
+    border-radius: 12px;
+    flex: 1;
+    overflow-y: auto;
+    margin-top: 0;
+    min-height: 200px;
+}
+  
+.response-content {
+    min-height: 100%;
+}

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>DeepSeek启动器</title>
+  <!-- 引入highlight.js样式 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+
+  <!-- 引入CSS文件 -->
+  <link rel="stylesheet" href="./css/variables.css">
+  <link rel="stylesheet" href="./css/components.css">
+  <link rel="stylesheet" href="./css/scrollbars.css">
+  <link rel="stylesheet" href="./css/buttons.css">
+  <link rel="stylesheet" href="./css/history.css">
+  <link rel="stylesheet" href="./css/messages.css">
+  <link rel="stylesheet" href="./css/response.css">
+  <link rel="stylesheet" href="./css/aspect_ratio.css">
+</head>
+<body>
+
+  <!-- 最小尺寸检测层 -->
+  <div id="minSizeDetector"></div>
+
+  <div class="container">
+    <div class="history-area">
+      <h3>对话历史 
+        <button id="clearHistoryBtn">清除</button>
+      </h3>
+      <ul class="history-list" id="historyList">
+        <li class="empty-history">暂无历史记录</li>
+      </ul>
+    </div>
+    
+    <div class="input-area">
+      <h2>DeepSeek启动器</h2>
+      
+      <div class="response-area">
+        <div class="response-content" id="responseContent">
+          <div class="message assistant-message">
+            <div class="message-header">
+              <span class="role">DeepSeek</span>
+              <span class="timestamp">现在</span>
+            </div>
+            <div class="message-content">
+              <p>我是 DeepSeek，很高兴见到你！</p>
+            </div>
+          </div>
+        </div>
+        <div class="loader" id="loader"></div>
+      </div>
+
+      <textarea id="userInput" placeholder="给 Deepseek 发送消息"></textarea>
+      <div class="button-group">
+        <button id="sendBtn">发送</button>
+        <button id="cancelBtn" disabled>取消</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 引入Markdown解析库 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.0.2/marked.min.js"></script>
+  <!-- 引入highlight.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <script src="/src/modules/utils.js"></script>
+  <script src="/src/modules/request.js"></script>
+  <script src="/src/modules/message.js"></script>
+  <script src="/src/modules/history.js"></script>
+  
+  <script src="/src/modules/window.js"></script>
+
+</body>
+</html>

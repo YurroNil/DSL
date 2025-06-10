@@ -1,0 +1,17 @@
+/* css/variables.css */
+
+:root {
+    --primary: #009688;
+    --secondary: #dff5f3;
+    --bg: #263238;
+    --card: #263238;
+    --light-card: #2c383d;
+    --text: #dff5f3;
+    --error: #e74c3c;
+}
+
+body {
+    width: var(--container-width);
+    height: var(--container-height);
+    margin: 0 auto;
+}

@@ -1,0 +1,52 @@
+/* css/buttons.css */
+
+button {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.3s;
+    flex: 1;
+}
+  
+button:hover:not(:disabled) {
+    background: #a7b6ac;
+    transform: translateY(-2px);
+}
+  
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+
+#cancelBtn {
+    background: var(--error);
+}
+  
+#cancelBtn:hover:not(:disabled) {
+    background: #c0392b;
+}
+  
+#clearHistoryBtn {
+    background: transparent;
+    border: 1px solid var(--error);
+    color: var(--error);
+    padding: 6px 12px;
+    font-size: 14px;
+}
+  
+#clearHistoryBtn:hover {
+    background: var(--error);
+    color: white;
+}

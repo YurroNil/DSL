@@ -1,0 +1,51 @@
+/* css/history.css */
+
+.history-area {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 15px;
+    width: 300px;
+    overflow-y: auto;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+  
+.history-area h3 {
+    margin-top: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+  
+.history-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+  
+.history-item {
+    background: var(--light-card);
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+  
+.history-item:hover {
+    background: var(--secondary);
+    color: white;
+}
+  
+.history-item.active {
+    background: var(--primary);
+    color: white;
+}
+
+.empty-history {
+    text-align: center;
+    padding: 20px;
+    opacity: 0.7;
+}

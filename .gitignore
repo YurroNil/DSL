@@ -140,5 +140,8 @@ dist
 /bin/*
 /build/
 /build/*
+/vscode/
+/vscode/*
+*.code-workspace
 *.exe
 *.dll

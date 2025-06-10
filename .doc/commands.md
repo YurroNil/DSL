@@ -9,7 +9,6 @@ npm install electron --save-dev
 3. 启动命令
 npm start
 
-
 # (二) 生成可执行的二进制文件
 
 1. 安装electron builder
@@ -17,4 +16,4 @@ npm start
 npm install electron-builder --save-dev
 
 2. 生成
-npm run build
+npm run bin
