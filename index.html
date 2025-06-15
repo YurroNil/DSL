@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>DeepSeek启动器</title>
+
   <!-- 引入highlight.js样式 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 
@@ -23,7 +24,7 @@
 
   <div class="container">
     <div class="history-area">
-      <h3>对话历史 
+      <h3>对话历史
         <button id="clearHistoryBtn">清除</button>
       </h3>
       <ul class="history-list" id="historyList">
@@ -62,12 +63,278 @@
   <!-- 引入highlight.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 
-  <script src="/src/modules/utils.js"></script>
-  <script src="/src/modules/request.js"></script>
-  <script src="/src/modules/message.js"></script>
-  <script src="/src/modules/history.js"></script>
+  <script src="./src/modules/utils.js"></script>
+  <script src="./src/modules/request.js"></script>
+  <script src="./src/modules/message.js"></script>
+  <script src="./src/modules/history.js"></script>
   
-  <script src="/src/modules/window.js"></script>
+  <script src="./src/modules/window.js"></script>
+
+  <script>
+    marked.setOptions({
+    highlight: function(code, lang) {
+        const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+        return hljs.highlight(code, { language }).value;
+    },
+    langPrefix: 'hljs language-'
+});
+
+// 工具函数
+function ScrollToBottom() {
+    const response_content = document.getElementById('responseContent');
+    requestAnimationFrame(() => {
+        response_content.scrollTop = response_content.scrollHeight;
+    });
+}
+// 导出工具函数
+export { ScrollToBottom };
+// src/modules/request.js
+
+import { addMessage, UpdateMsgContent, current_markdown, current_message_id } from './message.js';
+import { UpdateHistoryList } from './history.js';
+
+// 获取DOM元素
+const sendBtn = document.getElementById('sendBtn');
+const cancelBtn = document.getElementById('cancelBtn');
+const user_input = document.getElementById('userInput');
+const loader = document.getElementById('loader');
+ 
+// 当前是否正在请求中
+let is_requesting = false;
+
+// 更新按钮状态
+function UpdateBtnStates() {
+    sendBtn.disabled = is_requesting;
+    cancelBtn.disabled = !is_requesting;
+}
+
+// 设置事件监听器
+window.electronAPI.onStreamingResponse((chunk) => {
+    current_markdown += chunk;
+    UpdateMsgContent(current_message_id, current_markdown, true);
+});
+
+window.electronAPI.onStreamingComplete(() => {
+    is_requesting = false;
+    UpdateBtnStates();
+    loader.style.display = 'none';
+
+    current_markdown = current_markdown.replace('▋', '');
+    UpdateMsgContent(current_message_id, current_markdown, false);
+    UpdateHistoryList();
+});
+
+window.electronAPI.onStreamingError((error) => {
+    const error_msg = `\n\n> **错误**：${error}`;
+    current_markdown += error_msg;
+    UpdateMsgContent(current_message_id, current_markdown, false);
+
+    is_requesting = false;
+    UpdateBtnStates();
+    loader.style.display = 'none';
+});
+
+// 发送请求
+sendBtn.addEventListener('click', async () => {
+
+    console.log('按钮已被点击');
+
+    const inputText = user_input.value.trim();
+    if (!inputText || is_requesting) return;
+
+    is_requesting = true;
+    UpdateBtnStates();
+    loader.style.display = 'block';
+
+    current_message_id = 'msg-' + Date.now();
+    current_markdown = '';
+
+    addMessage('user', inputText);
+  
+try {
+    await window.electronAPI.startStreamingRequest(inputText);
+    user_input.value = '';
+} catch (err) {
+    console.error('启动流式请求失败:', err);
+    addMessage('assistant', `**通信错误**：${err.message}`);
+    is_requesting = false;
+    UpdateBtnStates();
+    loader.style.display = 'none';
+}
+});
+
+// 取消请求
+cancelBtn.addEventListener('click', async () => {
+    if (!is_requesting) return;
+
+try {
+    const canceled = await window.electronAPI.cancelStreamingRequest();
+    if (canceled) {
+        current_markdown += '\n\n> **请求已取消**';
+        UpdateMsgContent(current_message_id, current_markdown, false);
+        is_requesting = false;
+        UpdateBtnStates();
+        loader.style.display = 'none';
+    }
+
+} catch (err) { console.error('取消请求失败:', err); }
+});
+
+UpdateBtnStates();
+
+export { UpdateBtnStates };
+// src/modules/message.js
+
+import { ScrollToBottom } from './utils.js';
+
+// 当前收集的Markdown内容
+let current_markdown = '';
+// 当前消息ID
+let current_message_id = null;
+
+// 添加消息到对话区域
+function addMessage(role, content, is_typing = false) {
+
+    const message_id = role === 'assistant' ? current_message_id : 'msg-' + Date.now();
+
+    const msg_element = document.createElement('div');
+    msg_element.className = `message ${role}-message`;
+    msg_element.id = message_id;
+
+    const now = new Date();
+    const timestamp = now.toLocaleTimeString();
+
+    msg_element.innerHTML = `
+    <div class="message-header">
+        <span class="role">${role === 'user' ? 'DeepSeek' : 'You'}</span>
+        <span class="timestamp">${timestamp}</span>
+    </div>
+    <div class="message-content">
+        ${is_typing ? '' : marked.parse(content)}
+    </div>
+    `;
+
+    document.getElementById('responseContent').appendChild(msg_element);
+    ScrollToBottom();
+
+    return message_id;
+}
+
+// 更新消息内容
+function UpdateMsgContent(message_id, content, is_typing = false) {
+const msg_element = document.getElementById(message_id);
+if (!msg_element) return;
+
+const content_element = msg_element.querySelector('.message-content');
+    if (content_element) {
+        content_element.innerHTML = is_typing 
+        ? marked.parse(content + '▋') 
+        : marked.parse(content);
+    }
+
+  // 高亮代码块
+  document.querySelectorAll('pre code').forEach((block) => {
+    hljs.highlightElement(block);
+  });
+
+  ScrollToBottom();
+}
+
+// 导出消息相关函数
+export { addMessage, UpdateMsgContent, current_markdown, current_message_id };
+// src/modules/history.js
+
+// 更新历史列表
+async function UpdateHistoryList() {
+try {
+    const history = await window.electronAPI.getConversationHistory();
+    const history_list = document.getElementById('historyList');
+    const user_input = document.getElementById('userInput');
+
+    // 过滤掉系统消息
+    const user_msgs = history.filter(msg => msg.role === 'user');
+
+    if (user_msgs.length === 0) {
+        history_list.innerHTML = '<li class="empty-history">暂无历史记录</li>';
+        return;
+    }
+
+    history_list.innerHTML = '';
+
+    user_msgs.forEach((msg, index) => {
+        const li = document.createElement('li');
+        li.className = 'history-item';
+        li.textContent = msg.content;
+
+        li.addEventListener('click', () => {
+            // 高亮选中的历史项
+            document.querySelectorAll('.history-item').forEach(item => { item.classList.remove('active'); });
+            li.classList.add('active');
+            
+            // 填充到输入框
+            user_input.value = msg.content;
+        });
+
+        history_list.appendChild(li);
+    });
+
+} catch (error) {
+    console.error('获取历史记录失败:', error);
+}}
+  
+// 初始化历史功能
+document.getElementById('clearHistoryBtn').addEventListener('click', async () => {
+    const confirmed = confirm('确定要清除所有对话历史吗？');
+    if (confirmed) {
+        await window.electronAPI.clearConversationHistory();
+        UpdateHistoryList();
+    }
+});
+
+// 导出历史相关函数
+export { UpdateHistoryList };
+// src/modules/window.js
+
+import { UpdateBtnStates } from './request.js'
+import { UpdateHistoryList } from './history.js'
+
+function CheckMinResol() {
+    const detector = document.getElementById('minSizeDetector');
+    const min_width = 480;
+    const min_height = 272;
+    
+    function UpdateDetector() {
+      const meets_min = window.innerWidth >= min_width && window.innerHeight >= min_height;
+      detector.style.display = meets_min ? 'none' : 'block';
+    }
+   
+    // 初始检测
+    UpdateDetector();
+    
+    // 窗口变化时检测
+    window.addEventListener('resize', () => {
+      UpdateDetector();
+      
+      // 强制容器尺寸更新
+      document.documentElement.style.setProperty(
+        '--container-width',
+        `${Math.max(min_width, window.innerWidth * 0.95)}px`
+      );
+    });
+}
+
+// 初始化
+document.addEventListener('DOMContentLoaded', () => {
+  // 初始化检测
+  CheckMinResol();
+
+  // 初始化按钮状态
+  UpdateBtnStates();
+  // 初始化历史列表
+  UpdateHistoryList();
+});
+
+  </script>
 
 </body>
 </html>

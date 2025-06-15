@@ -2,7 +2,7 @@
     "name": "electron-application",
     "version": "1.0.0",
     "description": "Electron Application",
-    "main": "src/main.js",
+    "main": "src/init.js",
     "scripts": {
         "start": "electron .",
         "pack": "electron-builder --dir",

@@ -42,10 +42,11 @@ app.whenReady().then(() => {
   let cvst_history = [
     { role: "system", content: "你是一个DeepSeek助手" }
   ];
-  
+
   // 获取当前对话历史
   ipcMain.handle('get-conversation-history', () => {
     return cvst_history;
+    
   });
   
   // 清除对话历史
